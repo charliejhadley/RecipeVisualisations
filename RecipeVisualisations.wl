@@ -10,11 +10,12 @@ cuisineGraph::usage="cuisineGraph[cuisine] generates a graph connecting all ingr
 ingrSubGraph::usage"ingrSubGraph[cuisine,ingr] generates a subgraph of all recipes from cuisine containing all ingredients used in combination with the specified ingr";
 cuisineIngrConnectivity::usage="cuisineIngrConnectivity[cuisine] generates a profile of the connectivity of ingredients within the specified cuisine";
 
-
+graphTest=Import[FileNameJoin[{FileNameDrop[$InputFileName],"data","African"<>"Graph.wdx"}]];
 
 Begin["`Private`"]
 (*Import data*)
-recipesImport=Import[FileNameJoin[{FileNameDrop[$InputFileName],"recipes.csv"}]];
+recipesImport=Import[FileNameJoin[{FileNameDrop[$InputFileName],"data","recipes.csv"}]];
+packageLocation=FileNameDrop[$InputFileName];
 
 (*build data structures*)
 cuisines=Union@recipesImport[[All,1]];
@@ -81,7 +82,7 @@ Map[Export[#<>"Graph.wdx",cuisineGraph[#]]&,cuisines]*)
 (*Build a subgraph containing all connected ingredients within a specified cuisine*)
 ingrSubGraph[cuisine_,ingr_]:=Block[
 {
-graph=Import[FileNameJoin[{FileNameDrop[$InputFileName],cuisine<>"Graph.wdx"}]]
+graph=Import[FileNameJoin[{packageLocation,"data",cuisine<>"Graph.wdx"}]]
 },
 Subgraph[graph,_<->ingr|ingr<->_,VertexLabels->Placed["Name",Tooltip]]
 ]
@@ -120,11 +121,11 @@ Length[vMin]>1,"The least common ingredients are "<>StringJoin[Riffle[vMin,", "]
 (*Create a profile of the connectiveness of ingredients within a cuisine*)
 cuisineIngrConnectivity[cuisine_]:=Block[
 {
-graph=Import[FileNameJoin[{FileNameDrop[$InputFileName],cuisine<>"Graph.wdx"}]]
+graph=Import[FileNameJoin[{packageLocation,"data",cuisine<>"Graph.wdx"}]]
 },
 Grid[{
 Sequence@@commonIngr[graph],
-{Histogram[VertexDegree[graph],Automatic,"PDF",ImageSize->400,Frame->True,FrameLabel->{"Connected Ingredients","Density"}],Show[Import[cuisine<>"CommGraph.wdx"],ImageSize->360,AspectRatio->Automatic]}
+{Histogram[VertexDegree[graph],Automatic,"PDF",ImageSize->400,Frame->True,FrameLabel->{"Connected Ingredients","Density"}],Show[Import@FileNameJoin[{packageLocation,"data",cuisine<>"CommGraph.wdx"}],ImageSize->360,AspectRatio->Automatic]}
 },BaseStyle->{"Text",FontSize->14},Alignment->Left
 ]
 ]

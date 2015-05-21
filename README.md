@@ -7,7 +7,7 @@ Shiny applications
 
 # WL Code
 
-The `RecipeVisualisations.wl` package contains a number of visualisations of the recipe data, briefly:
+The `RecipeVisualisations.wl` package contains a number of visualisations of the recipe data. To access these functions clone the repository and evaluate `<<RecipeVisualisations` note that files within the `data` folder are loaded by many visualisations for speed, the package contains commented code for generating the `.wdx` files yourself. 
 
 `cuisineGeoGraphic[]`
 ![cuisineGeoGraphic](https://raw.githubusercontent.com/martinjhnhadley/RecipeVisualisations/master/cuisineGeoGraphic.png)

@@ -11,3 +11,13 @@ The `RecipeVisualisations.wl` package contains a number of visualisations of the
 
 `cuisineGeoGraphic[]`
 ![cuisineGeoGraphic](https://raw.githubusercontent.com/martinjhnhadley/RecipeVisualisations/master/cuisineGeoGraphic.png)
+
+`recipleLengthDistViewer[]`
+![recipleLengthDistViewer](https://raw.githubusercontent.com/martinjhnhadley/RecipeVisualisations/master/recipleLengthDistViewer.png)
+
+`cuisineIngrConnectivity["African"]`
+![cuisineIngrConnectivity](https://raw.githubusercontent.com/martinjhnhadley/RecipeVisualisations/master/cuisineIngrConnectivity.png)
+
+`ingrSubGraph["NorthAmerican","peppermint_oil"]`
+![ingrSubGraph](https://raw.githubusercontent.com/martinjhnhadley/RecipeVisualisations/master/ingrSubGraph.png)
+

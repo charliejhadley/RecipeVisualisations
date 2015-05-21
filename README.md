@@ -7,4 +7,7 @@ Shiny applications
 
 # WL Code
 
-Wolfram Language code
+The `RecipeVisualisations.wl` package contains a number of visualisations of the recipe data, briefly:
+
+`cuisineGeoGraphic[]`
+![cuisineGeoGraphic](https://raw.githubusercontent.com/martinjhnhadley/RecipeVisualisations/master/cuisineGeoGraphic.png)

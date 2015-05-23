@@ -3,7 +3,24 @@ This is a collection of interactive visualisations and analyses of data from DOI
 
 # R Code
 
-Shiny applications
+R Code is split into several `.rmd` files that RStudio will use `knitr` to produce `slidy` presentations with embedded `shiny` apps. The apps are as follows:
+
+recipePieBarCharts.Rmd
+
+![recipePieBarCharts](https://raw.githubusercontent.com/martinjhnhadley/RecipeVisualisations/master/recipePieBarCharts.png)
+
+recipeWordclouds.Rmd
+
+![recipeWordcloud](https://raw.githubusercontent.com/martinjhnhadley/RecipeVisualisations/master/recipeWordcloud.png)
+
+recipeHistBeanplots.Rmd
+
+![recipeHistBeanplots](https://raw.githubusercontent.com/martinjhnhadley/RecipeVisualisations/master/recipeHistBeanplots.png)
+
+recipeOysterGraph.Rmd
+
+![recipeOysterGraph](https://raw.githubusercontent.com/martinjhnhadley/RecipeVisualisations/master/recipeOysterGraph.png)
+
 
 # WL Code
 

@@ -1,0 +1,145 @@
+---
+title: "RecipeWordClouds"
+runtime: shiny
+output: slidy_presentation
+css: myStyle.css
+---
+
+
+## Word cloud
+
+```{r, echo=FALSE}
+
+## Note assistance from http://shiny.rstudio.com/gallery/word-cloud.html
+
+library(wordcloud)
+
+allFreqTable <- read.table("data/allFreqTable.csv", sep = ",", header = TRUE, row.names = 1)
+
+africanFreqTable <- read.table("data/africanFreqTable.csv", sep = ",", header = TRUE, row.names = 1)
+
+eastasianFreqTable <- read.table("data/eastasianFreqTable.csv", sep = ",", header = TRUE, row.names = 1)
+
+easterneuropeanFreqTable <- read.table("data/easterneuropeanFreqTable.csv", sep = ",", header = TRUE, row.names = 1)
+
+latinamericanFreqTableFreqTable <- read.table("data/latinamericanFreqTable.csv", sep = ",", header = TRUE, row.names = 1)
+
+middleeasternFreqTable <- read.table("data/middleeasternFreqTable.csv", sep = ",", header = TRUE, row.names = 1)
+
+northamericanFreqTable <- read.table("data/northamericanFreqTable.csv", sep = ",", header = TRUE, row.names = 1)
+
+northerneuropeanFreqTable <- read.table("data/northerneuropeanFreqTable.csv", sep = ",", header = TRUE, row.names = 1)
+
+southasianFreqTable <- read.table("data/southasianFreqTable.csv", sep = ",", header = TRUE, row.names = 1)
+
+southeastasianFreqTable <- read.table("data/southeastasianFreqTable.csv", sep = ",", header = TRUE, row.names = 1)
+
+southerneuropeanFreqTable <- read.table("data/southerneuropeanFreqTable.csv", sep = ",", header = TRUE, row.names = 1)
+
+westerneuropeanFreqTable <- read.table("data/westerneuropeanFreqTable.csv", sep = ",", header = TRUE, row.names = 1)
+
+shinyApp(
+  ui = navbarPage(tags$link(rel="stylesheet", type="text/css", href="css/myStyle.css"),
+                  "WordClouds",
+                  tabPanel("Ingredients per Cuisine",
+                           sidebarLayout(
+                             sidebarPanel(
+                               selectInput("selection", "Choose a cuisine:",
+                                           choices = list("All recipes" = "allFreqTable",
+                                                          "African recipes" = "africanFreqTable",
+                                                          "Eastern Asian recipes" = "eastasianFreqTable",
+                                                          "Eastern European recipes" = "easterneuropeanFreqTable",
+                                                          "Latin American recipes" = "latinamericanFreqTableFreqTable",
+                                                          "Middle Eastern recipes" = "middleeasternFreqTable",
+                                                          "North American recipes" = "northamericanFreqTable",
+                                                          "Northern European recipes" = "northerneuropeanFreqTable",
+                                                          "South Asian recipes" = "southasianFreqTable",
+                                                          "South East Asian recipes" = "southeastasianFreqTable",
+                                                          "Southern European recipes" = "southerneuropeanFreqTable",
+                                                          "Western Euorpean recipes" = "westerneuropeanFreqTable"                  
+                                                          )),
+                               hr(),
+                               sliderInput("minfreq",
+                                           "Minimum Frequency:",
+                                           min = 1,  max = 50, value = 15),
+                               sliderInput("maxIngr",
+                                           "Maximum Number of Ingredients:",
+                                           min = 100,  max = 381,  value = 200),
+                               hr(),
+                               selectInput("colourScale", "Choose a colour scale",
+                                           choices = list("Dark2","Set3","Set3","Set1"))
+                               ),
+                             
+                             mainPanel(
+                               imageOutput("plot"),
+                               align = "top"
+                               )
+                             ),align = "top"
+                           ),align = "top"
+                  ),
+  
+  server = function(input, output) {
+    ingrs <- reactive({
+      switch(input$selection, 
+             "allFreqTable" = allFreqTable$word,
+             "africanFreqTable" = africanFreqTable$word,
+             "eastasianFreqTable" = eastasianFreqTable$word,
+             "easterneuropeanFreqTable" = easterneuropeanFreqTable$word,
+             "latinamericanFreqTableFreqTable" = latinamericanFreqTableFreqTable$word,
+             "middleeasternFreqTable" = middleeasternFreqTable$word,
+             "northamericanFreqTable" = northamericanFreqTable$word,
+             "northerneuropeanFreqTable" = northerneuropeanFreqTable$word,
+             "southasianFreqTable" = southasianFreqTable$word,
+             "southeastasianFreqTable" = southeastasianFreqTable$word,
+             "southerneuropeanFreqTable" = southerneuropeanFreqTable$word,
+             "westerneuropeanFreqTable" = westerneuropeanFreqTable$word
+             )
+      })
+    frqs <- reactive({
+      switch(input$selection, 
+             "allFreqTable" = allFreqTable$freq,
+             "africanFreqTable" = africanFreqTable$freq,
+             "eastasianFreqTable" = eastasianFreqTable$freq,
+             "easterneuropeanFreqTable" = easterneuropeanFreqTable$freq,
+             "latinamericanFreqTableFreqTable" = latinamericanFreqTableFreqTable$freq,
+             "middleeasternFreqTable" = middleeasternFreqTable$freq,
+             "northamericanFreqTable" = northamericanFreqTable$freq,
+             "northerneuropeanFreqTable" = northerneuropeanFreqTable$freq,
+             "southasianFreqTable" = southasianFreqTable$freq,
+             "southeastasianFreqTable" = southeastasianFreqTable$freq,
+             "southerneuropeanFreqTable" = southerneuropeanFreqTable$freq,
+             "westerneuropeanFreqTable" = westerneuropeanFreqTable$freq
+             )
+      })
+    ## set wordcloud to use the same seeds everytime called
+    wordcloud_rep <- repeatable(wordcloud)
+    
+    output$plot <- renderImage(
+      {
+        # specify temp file
+        wordCloudOutFile <- tempfile(fileext=".png")
+        # data loading
+        ingrs1 <- ingrs()
+        frqs1 <- frqs()
+        # generate PNG 
+        png(wordCloudOutFile, width = 500, height = 500)
+        wordcloud_rep(ingrs1, frqs1,
+                      colors=brewer.pal(8, input$colourScale),
+                      min.freq = input$minfreq,
+                      max.words = input$maxIngr,
+                      ## http://stackoverflow.com/q/27981651/1659890
+                      scale = c(3, 0.4)
+                      )
+        dev.off()
+        # return list with filename
+        list(src = wordCloudOutFile,
+             contentType = "image/png",
+             width = 600,
+             height = 600,
+             alt = "Wordcloud")
+        },deleteFile = TRUE
+      )
+    
+    },options = list(height = 500, width = "100%")
+  )
+```

@@ -1,0 +1,146 @@
+---
+title: "Minimal Recipe PieChart"
+author: "Martin John Hadley"
+date: "23 May 2015"
+runtime: shiny
+css: myStyle.css
+output: slidy_presentation
+---
+
+## Piechart
+
+
+```{r, echo=FALSE}
+### ================= Import Freq Tables =================== ####
+allFreqTable <- read.table("data/allFreqTable.csv", sep = ",", header = TRUE, row.names = 1)
+africanFreqTable <- read.table("data/africanFreqTable.csv", sep = ",", header = TRUE, row.names = 1)
+eastasianFreqTable <- read.table("data/eastasianFreqTable.csv", sep = ",", header = TRUE, row.names = 1)
+easterneuropeanFreqTable <- read.table("data/easterneuropeanFreqTable.csv", sep = ",", header = TRUE, row.names = 1)
+latinamericanFreqTableFreqTable <- read.table("data/latinamericanFreqTable.csv", sep = ",", header = TRUE, row.names = 1)
+middleeasternFreqTable <- read.table("data/middleeasternFreqTable.csv", sep = ",", header = TRUE, row.names = 1)
+northamericanFreqTable <- read.table("data/northamericanFreqTable.csv", sep = ",", header = TRUE, row.names = 1)
+northerneuropeanFreqTable <- read.table("data/northerneuropeanFreqTable.csv", sep = ",", header = TRUE, row.names = 1)
+southasianFreqTable <- read.table("data/southasianFreqTable.csv", sep = ",", header = TRUE, row.names = 1)
+southeastasianFreqTable <- read.table("data/southeastasianFreqTable.csv", sep = ",", header = TRUE, row.names = 1)
+southerneuropeanFreqTable <- read.table("data/southerneuropeanFreqTable.csv", sep = ",", header = TRUE, row.names = 1)
+westerneuropeanFreqTable <- read.table("data/westerneuropeanFreqTable.csv", sep = ",", header = TRUE, row.names = 1)
+# make a list of data.frames
+dataList <- list(africanFreqTable = africanFreqTable, eastasianFreqTable = eastasianFreqTable, easterneuropeanFreqTable = easterneuropeanFreqTable, latinamericanFreqTableFreqTable = latinamericanFreqTableFreqTable, middleeasternFreqTable = middleeasternFreqTable, northamericanFreqTable = northamericanFreqTable, northerneuropeanFreqTable = northerneuropeanFreqTable, southasianFreqTable = southasianFreqTable, southeastasianFreqTable = southeastasianFreqTable, southerneuropeanFreqTable = southerneuropeanFreqTable, westerneuropeanFreqTable = westerneuropeanFreqTable)
+# sum the ingredients used in each recipe
+ingrsInCuisine <- sapply(dataList, function(x)sum(x[,"freq"]))
+## Calculate percentages of ingredients in each cuisine:
+ingrPrcnts <- round(100*(ingrsInCuisine/sum(ingrsInCuisine)),1)
+
+### ================= Import recipes =================== ####
+
+suppressWarnings(library(data.table))
+recipesImport <- read.table("data/recipes.csv", sep = ",", as.is = TRUE, fill = TRUE, col.names = paste0("V",1:33), na.strings = "")
+recipesImport <- data.table(recipesImport)
+notNAf <- function(data) sum(! is.na(data))-1
+## List cuisines as strings
+cuisines <- c("African","EastAsian","EasternEuropean","LatinAmerican","MiddleEastern","NorthAmerican","NorthernEuropean","SouthAsian","SoutheastAsian","SouthernEuropean","WesternEuropean")
+## use nrow to get number of recipes in each cuisine
+recpsInCuisine <- sapply(cuisines, function(x)nrow(recipesImport[V1 == x]))
+## Calculate percentages of recipes in each cuisine:
+recpsPrcnts <- round(100*(recpsInCuisine/sum(recpsInCuisine)),1)
+
+```
+
+
+```{r, echo=FALSE}
+
+## import recipes
+
+shinyApp(
+  ui = navbarPage(
+    tags$head(tags$style(".topAlign{float:top;}")),
+    "Navbar Element",
+    tabPanel("Piechart",
+             sidebarLayout(
+               sidebarPanel(
+                 selectInput("selection", "Filter by recipes or ingredients:",
+                             choices = list("Recipes per cuisine" = "recipes",
+                                            "Ingredient per cuisine" = "ingredients"
+                                            )),
+                 radioButtons("labelType", "PieChart labels",
+                              c("Cuisines" = "cuisine", "Percentages"="percent", "Numbers"="number")
+                              )
+                 ),
+               mainPanel(
+                 imageOutput("piechart"),
+                 align = "top"
+                 )
+               )
+             ),
+    tabPanel("Barplot",
+             mainPanel(
+               imageOutput("barchart")
+               )
+             )
+    ),
+  
+  server = function(input, output){
+    pieData <- reactive({
+      switch(input$selection, 
+             "recipes" = recpsInCuisine,
+             "ingredients" = ingrsInCuisine
+             )
+      })
+    pieLabels <- reactive({
+      switch(input$labelType,
+             "cuisine" = cuisines,
+             "percent" = if(input$selection == "recipes") 
+               round(100*(recpsInCuisine/sum(recpsInCuisine)),1) else round(100*(ingrsInCuisine/sum(ingrsInCuisine)),1),
+             "number" = if(input$selection == "recipes") 
+               recpsInCuisine else ingrsInCuisine
+             )
+      })
+    
+    output$piechart <- renderImage(
+      {
+        # specify temp file
+        pieOutFile <- tempfile(fileext=".png")
+        # data loading
+        data <- pieData()
+        lbls <- pieLabels()
+        # generate PNG
+        png(pieOutFile, width = 500, height = 500)
+        pie(data, labels = lbls, col = rainbow(11))
+        dev.off()
+        # return list with filename
+        list(src = pieOutFile,
+             contentType = "image/png",
+             width = 500,
+             height = 500,
+             alt = "Piechart")
+        },deleteFile = TRUE
+      )
+    
+    output$barchart <- renderImage(
+      {
+        # specify temp file
+        barOutFile <- tempfile(fileext=".png")
+        # data loading
+        percDF <- do.call(rbind,data.frame(recpsPrcnts,ingrPrcnts))
+        # generate PNG
+        png(barOutFile, width = 800, height = 500)
+        par(mar = c(15,4,4,2)+0.1)
+        barplot(percDF, beside = TRUE, legend.text = c("Recipes in Cuisine","Ingredients in Cuisine"),args.legend = list(x = "topleft", bty="n"), names = cuisines, las = 2, col = c("orange","blue"), main = "Percentages of recipes and ingredients in each cuisine")
+        grid()
+        dev.off()
+        # return list with filename
+        list(src = barOutFile,
+             contentType = "image/png",
+             width = 800,
+             height = 500,
+             alt = "Barplot")        
+        }
+      )
+    
+    }
+  ,options = list(height = 500, width = "100%")
+  )
+```
+
+
+

@@ -1,0 +1,96 @@
+---
+title: "Histogram App"
+runtime: shiny
+output: slidy_presentation
+css: myStyle.css
+---
+
+## Graph of ingredients used with Oysters
+
+
+```{r, echo=FALSE}
+library(igraph)
+## read in graph
+latinAmerOysters <- read.graph("data/latinAmericanOysterEdges.ncol", format = "ncol", directed=FALSE)
+
+## Set all vertices as circles
+V(latinAmerOysters)$shape <- "circle"
+## Set oyster as square
+V(latinAmerOysters)["oyster"]$shape <- "square"
+
+### Calculuate betweenness
+vertexbtw <- betweenness(latinAmerOysters)
+## Vertex degree
+vertexDegree <- degree(latinAmerOysters)
+## Closeness
+vertexCloseness <- closeness(latinAmerOysters)
+## Colour palette
+palette = colorRampPalette(c('lightyellow','darkorange'))
+## finennes of palette
+paleteFineness= 1000
+
+
+shinyApp(
+  ui = navbarPage(tags$link(rel="stylesheet", type="text/css", href="css/myStyle.css"),
+                  "Navbar Element",
+                  tabPanel("Oyster Graph",
+                           sidebarLayout(
+                             sidebarPanel(
+                               selectInput("selMeasure", "Choose a centrality measure",
+                                           choices = list("Betweenness" = "betweenness",
+                                                          "Vertex Degree" = "degree",
+                                                          "Closeness" = "closeness"
+                                                          ))
+                               ),
+                             mainPanel(
+                               imageOutput("oysterGraph")
+                               )
+                             )
+                           )
+                  ),
+  
+  server = function(input, output){
+    
+    measureData <- reactive(
+      {
+        switch(input$selMeasure, 
+               "betweenness" = vertexbtw,
+               "degree" = vertexDegree,
+               "closeness" = vertexCloseness
+               )
+        }
+      )
+
+        output$oysterGraph <- renderImage(
+      {
+        # specify temp file
+        oysterGraphOutFile <- tempfile(fileext=".png")
+        # data loading
+        vColors <- palette(paleteFineness)[as.numeric(cut(measureData(),breaks = paleteFineness))]
+        # generate PNG
+        png(oysterGraphOutFile, width = 550, height = 550)
+        plot(latinAmerOysters, vertex.color=vColors, main = "Ingredients used with oysters in Latin American recipes")
+        dev.off()
+        # return list with filename
+        list(src = oysterGraphOutFile,
+             contentType = "image/png",
+             width = 550,
+             height = 550,
+             alt = "Oyster graph")
+        },deleteFile = TRUE
+      )
+    
+    output$plot <- renderPlot(
+      {
+        vColors <- palette(paleteFineness)[as.numeric(cut(measureData(),breaks = paleteFineness))]
+        plot(latinAmerOysters, vertex.color=vColors, main = "Ingredients used with oysters in Latin American recipes",vertex.size = 20)
+      }
+      )
+    
+    
+    },
+  options = list(height = 550, width = "100%")
+  )
+```
+
+

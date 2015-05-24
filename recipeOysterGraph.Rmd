@@ -11,7 +11,7 @@ css: myStyle.css
 ```{r, echo=FALSE}
 library(igraph)
 ## read in graph
-latinAmerOysters <- read.graph("data/latinAmericanOysterEdges.ncol", format = "ncol", directed=FALSE)
+latinAmerOysters <- read.graph("data/LatinAmericanOysterEdges.ncol", format = "ncol", directed=FALSE)
 
 ## Set all vertices as circles
 V(latinAmerOysters)$shape <- "circle"

@@ -3,6 +3,8 @@ This is a collection of interactive visualisations and analyses of data from DOI
 
 # R Code
 
+## Recipe Visualisations
+
 R Code is split into several `.rmd` files that RStudio will use `knitr` to produce `slidy` presentations with embedded `shiny` apps. The apps are as follows:
 
 recipePieBarCharts.Rmd
@@ -24,6 +26,8 @@ recipeOysterGraph.Rmd
 
 # WL Code
 
+## Recipe Visualisations
+
 The `RecipeVisualisations.wl` package contains a number of visualisations of the recipe data. To access these functions clone the repository and evaluate `<<RecipeVisualisations` note that files within the `data` folder are loaded by many visualisations for speed, the package contains commented code for generating the `.wdx` files yourself. 
 
 `cuisineGeoGraphic[]`
@@ -38,3 +42,14 @@ The `RecipeVisualisations.wl` package contains a number of visualisations of the
 `ingrSubGraph["NorthAmerican","peppermint_oil"]`
 ![ingrSubGraph](https://raw.githubusercontent.com/martinjhnhadley/RecipeVisualisations/master/ingrSubGraph.png)
 
+The `RecipeClassifier.wl` package is dedicated to machine learning analysis of the recipe data set, allowing for the classification of a recipe provided by the user.
+
+## Machine Learning: Recipe Classification
+
+A `ClassifierFunction` is trained using 282 recipes from each cuisine (200 from Northern Europe) and tested against 70 recipes from each cuisine (50 from North Europe), the resultant `ConfusionMatrixPlot` is shown below. Cross-validating 50 times provided an average classifier accuracy of 56%
+
+![recipeConfusionMatrixPlot](https://raw.githubusercontent.com/martinjhnhadley/RecipeVisualisations/master/recipeConfusionMatrixPlot.png)
+
+An interactive element for classifying a recipe is provided by `recipeInteractiveClassifier` in the `RecipeClassification.wl` package.
+
+![recipeInteractiveClassifier](https://raw.githubusercontent.com/martinjhnhadley/RecipeVisualisations/master/recipeInteractiveClassifier.png)

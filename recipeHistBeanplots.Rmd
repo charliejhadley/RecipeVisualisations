@@ -1,8 +1,7 @@
 ---
 title: "Histogram App"
 runtime: shiny
-output: slidy_presentation
-css: myStyle.css
+
 ---
 
 ## Comparing recipe lengths across recipes 
